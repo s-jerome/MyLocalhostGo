@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 	"log"
-	"mylocalhost/utils"
+	dates "mylocalhost/utils/dates"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,7 +28,7 @@ func appendToFile(filePath string, text string, v ...interface{}) {
 	if strings.HasSuffix(textToWrite, "\n") == false {
 		newLine = "\n"
 	}
-	textToWrite = fmt.Sprintf("%s -- %s%s", utils.NowToString(), textToWrite, newLine)
+	textToWrite = fmt.Sprintf("%s -- %s%s", dates.NowToString(), textToWrite, newLine)
 
 	if mkdirErr := mkdirAll(filePath); mkdirErr != nil {
 		log.Printf("[logger.appendToFile] Error for mkdir the file \"%s\":\n%v\ntext to write:\n%s", filePath, mkdirErr, textToWrite)

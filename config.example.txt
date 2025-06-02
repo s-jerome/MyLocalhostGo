@@ -1,1 +1,2 @@
 server.port=8801
+Youtube.ratedVideos.databaseFilePath=C:\youtube.db

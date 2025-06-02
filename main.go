@@ -3,6 +3,7 @@ package main
 import (
 	"mylocalhost/config"
 	"mylocalhost/logger"
+	youtube_ratedVideos "mylocalhost/sites/Youtube/ratedvideos"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -20,8 +21,13 @@ func main() {
 	}
 
 	var server = http.NewServeMux()
+	server.HandleFunc("/youtube/rating/get-rated-videos", youtube_ratedVideos.GetRatedVideosRequestHandler)
+	server.HandleFunc("/youtube/rating/set-video-rating", youtube_ratedVideos.SetVideoRatingRequestHandler)
 	var serverPort = config.Get("server.port")
 	var err = http.ListenAndServe(":"+serverPort, server)
+
+	youtube_ratedVideos.CloseDatabaseConnection()
+
 	if err != nil {
 		logger.WriteError("Error listening at port "+serverPort+"\n%v", err)
 		os.Exit(1)
