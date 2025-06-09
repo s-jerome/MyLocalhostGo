@@ -3,6 +3,7 @@ package main
 import (
 	"mylocalhost/config"
 	"mylocalhost/logger"
+	netflix "mylocalhost/sites/Netflix/playlist"
 	youtube_ratedVideos "mylocalhost/sites/Youtube/ratedvideos"
 	"net/http"
 	"os"
@@ -21,11 +22,13 @@ func main() {
 	}
 
 	var server = http.NewServeMux()
+	server.HandleFunc("/netflix/save-video-to-playlist", netflix.SaveVideoToPlaylistRequestHandler)
 	server.HandleFunc("/youtube/rating/get-rated-videos", youtube_ratedVideos.GetRatedVideosRequestHandler)
 	server.HandleFunc("/youtube/rating/set-video-rating", youtube_ratedVideos.SetVideoRatingRequestHandler)
 	var serverPort = config.Get("server.port")
 	var err = http.ListenAndServe(":"+serverPort, server)
 
+	netflix.CloseDatabaseConnection()
 	youtube_ratedVideos.CloseDatabaseConnection()
 
 	if err != nil {

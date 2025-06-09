@@ -7,7 +7,7 @@ import (
 
 const millisecond int64 = 1000000
 
-// Return the current locale time formatted like: 1988-09-26T02:10:00.123Z
+// Return the current locale time formatted like: 1988-09-26 02:10:00.123Z
 func NowToString() string {
 	var now = time.Now()
 
