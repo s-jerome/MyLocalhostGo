@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"mylocalhost/config"
-	"mylocalhost/utils"
+	database "mylocalhost/utils/database"
 	dates "mylocalhost/utils/dates"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -29,19 +29,14 @@ func openConnection() error {
 
 	var dbFilePath = config.Get("Youtube.ratedVideos.databaseFilePath")
 
-	var dbFileExists, fileExistsErr = utils.FileExists(dbFilePath)
-	if fileExistsErr != nil {
-		return fileExistsErr
+	var connection, dbFileExists, connectionErr = database.OpenSQLiteConnection(dbFilePath)
+	if connectionErr != nil {
+		return connectionErr
 	}
-
-	var db, openErr = sql.Open("sqlite3", dbFilePath)
-	if openErr != nil {
-		return openErr
-	}
-	_connection = db
+	_connection = connection
 
 	if dbFileExists == false {
-		var _, execErr = db.Exec(`
+		var _, execErr = connection.Exec(`
 		CREATE TABLE "channels" ("id" INTEGER, "name" TEXT NOT NULL CHECK("name" != '') UNIQUE, "channel_id" TEXT NOT NULL CHECK("channel_id" != ''),
 		PRIMARY KEY("id"));
 		
@@ -129,10 +124,10 @@ func getVideoFromVideoId(videoid string) (*RatedVideo, error) {
 }
 
 func insertVideo(videoid string, rating string, channelName string, videoTitle string, channelId string, videoDescription string, videoDurationSeconds int64) error {
-	var channelRowId, err = getChannelIdByName(channelName)
+	var channelRowid, err = getChannelIdByName(channelName)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			channelRowId, err = insertChannel(channelName, channelId)
+			channelRowid, err = insertChannel(channelName, channelId)
 			if err != nil {
 				return err
 			}
@@ -147,7 +142,7 @@ func insertVideo(videoid string, rating string, channelName string, videoTitle s
 	}
 	defer stmt.Close()
 
-	var result, execErr = stmt.Exec(videoid, rating, channelRowId, videoTitle, videoDescription, videoDurationSeconds, dates.NowToString())
+	var result, execErr = stmt.Exec(videoid, rating, channelRowid, videoTitle, videoDescription, videoDurationSeconds, dates.NowToString())
 	_ = result
 	return execErr
 }
