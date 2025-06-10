@@ -6,7 +6,8 @@ import (
 )
 
 var configs = map[string]string{
-	"server.port": "8801",
+	"server.port":                            "8801",
+	"Youtube.ratedVideos.cacheVideoRankings": "false",
 }
 
 func Read() error {
@@ -42,4 +43,19 @@ func Get(key string) string {
 	//.. If the key is not present, the value is an empty string.
 	var value = configs[key]
 	return value
+}
+
+// If `defaultValue` is true, return false only if the config value equals "false".
+//
+// If `defaultValue` is false, return true only if the config value equals "true".
+func GetBoolean(key string, defaultValue bool) bool {
+	//.. If the key is not present, the value is an empty string.
+	var value = configs[key]
+	if defaultValue {
+		var b = value == "false"
+		return b
+	} else {
+		var b = value == "true"
+		return b
+	}
 }

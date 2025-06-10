@@ -18,7 +18,7 @@ type RatedVideo struct {
 
 var _connection *sql.DB
 
-// Cache of the videos I just rated. Not very usefull I know.
+// Cache of the videos I just rated.
 var _videosByVideoId = make(map[string]*RatedVideo)
 var _channelIdsByName = make(map[string]int64)
 
@@ -104,9 +104,12 @@ func SetVideoRating(videoId string, rating string, channelName string, videoTitl
 }
 
 func getVideoFromVideoId(videoid string) (*RatedVideo, error) {
-	var video, keyExists = _videosByVideoId[videoid]
-	if keyExists {
-		return video, nil
+	var cacheVideoRankings = config.GetBoolean("Youtube.ratedVideos.cacheVideoRankings", false)
+	if cacheVideoRankings {
+		var video, keyExists = _videosByVideoId[videoid]
+		if keyExists {
+			return video, nil
+		}
 	}
 
 	var stmt, stmtErr = _connection.Prepare("SELECT rowid, rating FROM videos WHERE video_id = ?")
@@ -117,7 +120,7 @@ func getVideoFromVideoId(videoid string) (*RatedVideo, error) {
 
 	var ratedVideo = &RatedVideo{}
 	var scanErr = stmt.QueryRow(videoid).Scan(&ratedVideo.Rowid, &ratedVideo.Rating)
-	if scanErr == nil {
+	if scanErr == nil && cacheVideoRankings {
 		_videosByVideoId[videoid] = ratedVideo
 	}
 	return ratedVideo, scanErr

@@ -1,3 +1,5 @@
 server.port=8801
 Netflix.databaseFilePath=C:\netflix.db
+# Determine if the ranking of the videos are saved in cache.
+Youtube.ratedVideos.cacheVideoRankings=false
 Youtube.ratedVideos.databaseFilePath=C:\youtube.db
